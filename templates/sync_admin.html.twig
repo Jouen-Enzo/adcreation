@@ -1,0 +1,256 @@
+{% extends "base.html.twig" %}
+
+{% block extra_css %}
+<style>
+.sync-admin { max-width: 1200px; }
+
+/* ── Compteurs ── */
+.counters { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+.counter-card {
+    flex: 1; min-width: 150px;
+    background: #fff; border: 1px solid #dde2ea;
+    border-radius: 8px; padding: 14px 18px; text-align: center;
+}
+.counter-card .count { font-size: 26px; font-weight: 700; }
+.counter-card .label { font-size: 11px; color: #666; margin-top: 2px; }
+.count-ok      { color: #28a745; }
+.count-pending { color: #e6a817; }
+.count-error   { color: #dc3545; }
+
+/* ── Boîte import AD ── */
+.import-box {
+    background: #f0f7ff;
+    border: 2px solid #1a56c4;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+}
+.import-box h3 { margin: 0 0 6px; color: #1a56c4; font-size: 16px; }
+.import-box p  { margin: 0 0 14px; color: #444; font-size: 13px; }
+.import-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.import-actions form { display: flex; gap: 8px; align-items: center; }
+.import-actions input[type=text] {
+    padding: 6px 10px; border: 1px solid #aac4f0; border-radius: 6px;
+    font-size: 13px; width: 160px;
+}
+
+/* ── Résultats import ── */
+.import-result {
+    background: #fff;
+    border: 1px solid #dde2ea;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+.import-result .stats { display: flex; gap: 24px; margin-bottom: 10px; }
+.import-result .stat  { text-align: center; }
+.import-result .stat-num { font-size: 22px; font-weight: 700; }
+.import-result details summary { cursor: pointer; color: #666; font-size: 12px; }
+.import-result pre { font-size: 11px; max-height: 200px; overflow-y: auto; }
+
+/* ── File d'attente ── */
+.queue-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+.queue-actions form { display: flex; gap: 8px; align-items: center; }
+.queue-actions select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+
+/* ── Tableau ── */
+.sync-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sync-table th { background: var(--primary-color, #1a56c4); color: white; padding: 9px 12px; text-align: left; }
+.sync-table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.sync-table tr:hover td { background: #f7f9fc; }
+
+.pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.pill-synced  { background: #d4edda; color: #155724; }
+.pill-pending { background: #fff3cd; color: #856404; }
+.pill-error   { background: #f8d7da; color: #721c24; }
+.pill-skipped { background: #e2e3e5; color: #383d41; }
+
+.action-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+.btn-xs { padding: 3px 9px; font-size: 11px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+.btn-xs-ad     { background: #1a56c4; color: white; }
+.btn-xs-ldap   { background: #d97706; color: white; }
+.btn-xs-aurion { background: #6d28d9; color: white; }
+.btn-xs-all    { background: #28a745; color: white; }
+
+section h3 { font-size: 15px; margin: 0 0 14px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sync-admin">
+    <h2>🔄 Synchronisations & Import AD</h2>
+
+    {% if message %}
+    <div class="message message-{{ msgType }}" style="margin-bottom:18px">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    {# ══════════════════════════════════════════════════════
+       SECTION 1 — IMPORT AD → MySQL
+    ══════════════════════════════════════════════════════ #}
+    <section>
+        <h3>📥 Importer les utilisateurs depuis l'Active Directory</h3>
+
+        <div class="import-box">
+            <h3>🏢 Synchronisation AD → Base de données</h3>
+            <p>Importe tous les utilisateurs présents dans les OUs ESIGELEC de l'AD (<code>permanent</code>, <code>stagiaires</code>, <code>vacataire</code>) qui ne sont pas encore en base MySQL. Les comptes déjà présents sont ignorés.</p>
+
+            <div class="import-actions">
+                {# Bouton import en masse #}
+                <form method="POST"
+                      onsubmit="return confirm('Lancer l\'import de tous les utilisateurs AD vers MySQL ?')">
+                    <input type="hidden" name="action" value="import_ad">
+                    <button type="submit" class="btn btn-primary" style="font-size:13px;padding:7px 16px;">
+                        ⬇ Importer tous les users AD
+                    </button>
+                </form>
+
+                {# Import d'un seul user par login #}
+                <form method="POST">
+                    <input type="hidden" name="action" value="import_ad_one">
+                    <input type="text" name="login_import" placeholder="login AD (ex: j.dupont)" required>
+                    <button type="submit" class="btn" style="font-size:13px;padding:7px 14px;background:#444;color:white;border:none;border-radius:6px;cursor:pointer;">
+                        🔍 Importer ce login
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {# Résultats de l'import en masse #}
+        {% if importResult %}
+        <div class="import-result">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-num" style="color:#28a745">{{ importResult.imported }}</div>
+                    <div style="font-size:12px;color:#666">Importés</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num" style="color:#888">{{ importResult.skipped }}</div>
+                    <div style="font-size:12px;color:#666">Déjà en base</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num" style="color:#dc3545">{{ importResult.errors }}</div>
+                    <div style="font-size:12px;color:#666">Erreurs</div>
+                </div>
+            </div>
+            {% if importResult.details %}
+            <details>
+                <summary>Voir le détail ({{ importResult.details|length }} lignes)</summary>
+                <pre class="mt-2 p-2 bg-light rounded">{% for line in importResult.details %}{{ line }}
+{% endfor %}</pre>
+            </details>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+
+    {# ══════════════════════════════════════════════════════
+       SECTION 2 — COMPTEURS
+    ══════════════════════════════════════════════════════ #}
+    <section>
+        <h3>📊 État des synchronisations</h3>
+        <div class="counters">
+            {% for cible in ['ad', 'openldap', 'aurion'] %}
+            <div class="counter-card">
+                <div class="count count-pending">{{ pending[cible] }}</div>
+                <div class="label">{{ cible|upper }} — en attente</div>
+            </div>
+            <div class="counter-card">
+                <div class="count count-error">{{ errors[cible] }}</div>
+                <div class="label">{{ cible|upper }} — erreurs</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    {# ══════════════════════════════════════════════════════
+       SECTION 3 — FILE D'ATTENTE
+    ══════════════════════════════════════════════════════ #}
+    <section>
+        <h3>⚙️ Traitement de la file d'attente</h3>
+        <div class="queue-actions">
+            <form method="POST">
+                <input type="hidden" name="action" value="run_queue">
+                <select name="cible_queue">
+                    <option value="">Toutes les cibles</option>
+                    <option value="ad">Active Directory</option>
+                    <option value="openldap">OpenLDAP</option>
+                    <option value="aurion">Aurion</option>
+                </select>
+                <button type="submit" class="btn btn-success" style="font-size:13px;padding:7px 14px;">
+                    ▶ Traiter la file d'attente
+                </button>
+            </form>
+        </div>
+    </section>
+
+    {# ══════════════════════════════════════════════════════
+       SECTION 4 — TABLEAU UTILISATEURS
+    ══════════════════════════════════════════════════════ #}
+    <section>
+        <h3>👥 Utilisateurs en base ({{ users|length }})</h3>
+        <table class="sync-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Login</th>
+                    <th>Nom Prénom</th>
+                    <th>Type</th>
+                    <th>AD</th>
+                    <th>OpenLDAP</th>
+                    <th>Aurion</th>
+                    <th>Créé le</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td><code>{{ u.login }}</code></td>
+                <td>{{ u.prenom }} {{ u.nom }}</td>
+                <td><span class="pill pill-skipped">{{ u.user_type }}</span></td>
+                {% for cible in ['ad', 'openldap', 'aurion'] %}
+                <td>
+                    {% set s = u.sync[cible] ?? null %}
+                    {% if s %}
+                        <span class="pill pill-{{ s.etat }}" title="{{ s.last_error ?? '' }}">{{ s.etat }}</span>
+                        {% if s.last_sync_at %}<br><small style="color:#999">{{ s.last_sync_at|slice(0,16) }}</small>{% endif %}
+                    {% else %}
+                        <span class="pill pill-skipped">—</span>
+                    {% endif %}
+                </td>
+                {% endfor %}
+                <td style="white-space:nowrap">{{ u.created_at|slice(0,10) }}</td>
+                <td>
+                    <div class="action-btns">
+                        {% for cible, label, cls in [['ad','AD','ad'],['openldap','LDAP','ldap'],['aurion','Aurion','aurion']] %}
+                        <form method="POST" style="display:inline">
+                            <input type="hidden" name="action"  value="sync_user">
+                            <input type="hidden" name="user_id" value="{{ u.id }}">
+                            <input type="hidden" name="cible"   value="{{ cible }}">
+                            <button type="submit" class="btn-xs btn-xs-{{ cls }}">{{ label }}</button>
+                        </form>
+                        {% endfor %}
+                        <form method="POST" style="display:inline">
+                            <input type="hidden" name="action"  value="sync_user">
+                            <input type="hidden" name="user_id" value="{{ u.id }}">
+                            <button type="submit" class="btn-xs btn-xs-all">↺ Tout</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align:center;padding:30px;color:#888">
+                    Aucun utilisateur en base.<br>
+                    <small>Utilisez le bouton "Importer tous les users AD" ci-dessus.</small>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}

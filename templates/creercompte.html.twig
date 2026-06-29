@@ -1,0 +1,420 @@
+{% extends "base.html.twig" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="css/stylecreercompte.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-creercompte">
+    <h2>Créer un Compte Utilisateur</h2>
+
+    {% if message %}
+    <div class="alert alert-{{ messageType == 'success' ? 'success' : 'danger' }}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <form method="POST" class="form-creer" id="formCreer">
+
+        {# ══════════════════════════════════════════════════════════
+           SECTION 1 — IDENTITÉ
+        ══════════════════════════════════════════════════════════ #}
+        <fieldset>
+            <legend>👤 Identité</legend>
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label for="nom">Nom *</label>
+                    <input type="text" id="nom" name="nom" required placeholder="Dupont">
+                </div>
+                <div class="form-group col-6">
+                    <label for="prenom">Prénom *</label>
+                    <input type="text" id="prenom" name="prenom" required placeholder="Thomas">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-4">
+                    <label for="date_naissance">Date de naissance</label>
+                    <input type="date" id="date_naissance" name="date_naissance">
+                </div>
+                <div class="form-group col-4">
+                    <label for="lieu_naissance">Lieu de naissance</label>
+                    <input type="text" id="lieu_naissance" name="lieu_naissance"
+                           list="list-villes"
+                           placeholder="Rechercher une ville…"
+                           autocomplete="off">
+                    <datalist id="list-villes">
+                        {% for ville in villes %}
+                        <option value="{{ ville }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group col-4">
+                    <label for="genre">Genre</label>
+                    <select id="genre" name="genre">
+                        <option value="">— Non renseigné —</option>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label for="nationalite">Nationalité</label>
+                    <input type="text" id="nationalite" name="nationalite"
+                           list="list-nationalites"
+                           placeholder="Rechercher une nationalité…"
+                           autocomplete="off">
+                    <datalist id="list-nationalites">
+                        {% for nat in nationalites %}
+                        <option value="{{ nat }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group col-6">
+                    <label for="userType">Type de compte *</label>
+                    <select id="userType" name="userType" required>
+                        <option value="">— Sélectionner —</option>
+                        {% for key, label in user_types %}
+                        <option value="{{ key }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text">Détermine l'OU dans l'Active Directory</small>
+                </div>
+            </div>
+            <div class="form-row" id="row-promo" style="display:none">
+                <div class="form-group col-6">
+                    <label for="promo">Promotion</label>
+                    <input type="text" id="promo" name="promo" placeholder="A1, A2, CPII…">
+                </div>
+            </div>
+        </fieldset>
+
+        {# ══════════════════════════════════════════════════════════
+           SECTION 2 — COORDONNÉES
+        ══════════════════════════════════════════════════════════ #}
+        <fieldset>
+            <legend>📞 Coordonnées</legend>
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="thomas.dupont@esigelec.fr">
+                    <small class="form-text">Laissez vide pour génération automatique</small>
+                </div>
+                <div class="form-group col-6">
+                    <label for="telephone">Téléphone fixe</label>
+                    <input type="tel" id="telephone" name="telephone" placeholder="02 32 XX XX XX">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label for="telephone_mobile">Mobile</label>
+                    <input type="tel" id="telephone_mobile" name="telephone_mobile" placeholder="06 XX XX XX XX">
+                </div>
+                <div class="form-group col-6">
+                    <label for="fax">Fax</label>
+                    <input type="tel" id="fax" name="fax" placeholder="02 32 XX XX XX">
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+                <legend>🖥️ Profil réseau</legend>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="home_drive">Lecteur réseau</label>
+                        <input type="text" id="home_drive" name="home_drive" placeholder="X:" maxlength="3">
+                        <small class="form-text">homeDrive AD (ex: X:)</small>
+                    </div>
+                    <div class="form-group col-9">
+                        <label for="home_directory">Répertoire personnel</label>
+                        <input type="text" id="home_directory" name="home_directory" placeholder="\\srvfiles2\users\thomas.dupont">
+                        <small class="form-text">homeDirectory AD</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="profile_path">Chemin profil itinérant</label>
+                        <input type="text" id="profile_path" name="profile_path" placeholder="\\srvprofiles\profiles\thomas.dupont">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="logon_script">Script de connexion</label>
+                        <input type="text" id="logon_script" name="logon_script" placeholder="logon.bat">
+                    </div>
+                </div>
+            </fieldset>
+
+        {# ══════════════════════════════════════════════════════════
+           SECTION 3 — MODE AVANCÉ (toggle)
+        ══════════════════════════════════════════════════════════ #}
+        <div class="advanced-toggle" id="advancedToggle">
+            <button type="button" class="btn btn-outline" id="btnToggleAdvanced">
+                ⚙️ Afficher les options avancées (organisation, adresse, réseau)
+            </button>
+        </div>
+
+        <input type="hidden" id="mode_avance_hidden" name="" value="1">
+
+        <div id="advancedSection" style="display:none">
+
+            {# ── Organisation ── #}
+            <fieldset class="fieldset-advanced">
+                <legend>🏢 Organisation</legend>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="titre">Titre / Fonction</label>
+                        <input type="text" id="titre" name="titre" placeholder="Ingénieur, Enseignant…">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="poste">Description du poste</label>
+                        <input type="text" id="poste" name="poste" placeholder="Responsable informatique">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label for="departement">Département</label>
+                        <input type="text" id="departement" name="departement" placeholder="DSI, RH, Pédagogie…">
+                    </div>
+                    <div class="form-group col-4">
+                        <label for="societe">Société / Établissement</label>
+                        <input type="text" id="societe" name="societe" placeholder="ESIGELEC">
+                    </div>
+                    <div class="form-group col-4">
+                        <label for="service">Service</label>
+                        <input type="text" id="service" name="service" placeholder="Informatique">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="bureau">Bureau (N° de bureau)</label>
+                        <input type="text" id="bureau" name="bureau" placeholder="Bât A – B210">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="manager_login">Manager (login)</label>
+                        <input type="text" id="manager_login" name="manager_login" placeholder="j.martin">
+                        <small class="form-text">Login sAMAccountName du manager direct</small>
+                    </div>
+                </div>
+            </fieldset>
+
+            {# ── Adresse ── #}
+            <fieldset class="fieldset-advanced">
+                <legend>📍 Adresse</legend>
+                <div class="form-group">
+                    <label for="adresse_rue">Adresse (rue)</label>
+                    <input type="text" id="adresse_rue" name="adresse_rue" placeholder="Technopôle du Madrillet, Avenue Galilée">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label for="ville">Ville</label>
+                        <input type="text" id="ville" name="ville" placeholder="Saint-Etienne-du-Rouvray">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="code_postal">Code postal</label>
+                        <input type="text" id="code_postal" name="code_postal" placeholder="76800">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="etat_province">État / Province</label>
+                        <input type="text" id="etat_province" name="etat_province" placeholder="Normandie">
+                    </div>
+                    <div class="form-group col-2">
+                        <label for="pays">Pays</label>
+                        <input type="text" id="pays" name="pays" value="FR" maxlength="3">
+                    </div>
+                </div>
+            </fieldset>
+
+            {# ── Profil réseau ── #}
+           <!-- <fieldset class="fieldset-advanced">
+                <legend>🖥️ Profil réseau</legend>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="home_drive">Lecteur réseau</label>
+                        <input type="text" id="home_drive" name="home_drive" placeholder="X:" maxlength="3">
+                        <small class="form-text">homeDrive AD (ex: X:)</small>
+                    </div>
+                    <div class="form-group col-9">
+                        <label for="home_directory">Répertoire personnel</label>
+                        <input type="text" id="home_directory" name="home_directory" placeholder="\\srvfiles2\users\thomas.dupont">
+                        <small class="form-text">homeDirectory AD</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="profile_path">Chemin profil itinérant</label>
+                        <input type="text" id="profile_path" name="profile_path" placeholder="\\srvprofiles\profiles\thomas.dupont">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="logon_script">Script de connexion</label>
+                        <input type="text" id="logon_script" name="logon_script" placeholder="logon.bat">
+                    </div>
+                </div>
+            </fieldset> -->
+
+            {# ── Durée de vie du compte ── #}
+            <fieldset class="fieldset-advanced">
+                <legend>📅 Durée de vie du compte</legend>
+                <div class="form-row">
+                    <!-- <div class="form-group col-6">
+                        <label for="date_debut">Date d'activation</label>
+                        <input type="date" id="date_debut" name="date_debut">
+                    </div> -->
+                    <div class="form-group col-6">
+                        <label for="date_expiration">Date d'expiration</label>
+                        <input type="date" id="date_expiration" name="date_expiration">
+                        <small class="form-text">Vide = compte sans expiration</small>
+                    </div>
+                </div>
+            </fieldset>
+
+        </div>{# /advancedSection #}
+
+        {# ══════════════════════════════════════════════════════════
+           SECTION 5 — NOTES
+        ══════════════════════════════════════════════════════════ #}
+        <fieldset>
+            <legend>📝 Notes</legend>
+            <div class="form-group">
+                <textarea id="notes" name="notes" rows="3" placeholder="Informations complémentaires (contexte, demandeur, référence dossier…)"></textarea>
+            </div>
+        </fieldset>
+
+        {# ══════════════════════════════════════════════════════════
+           SECTION 6 — ACTIONS
+        ══════════════════════════════════════════════════════════ #}
+        <fieldset>
+            <legend>⚡ Actions</legend>
+            <div class="actions-grid">
+               <!-- <label class="action-checkbox">
+                    <input type="checkbox" id="generate_docx" name="generate_docx" checked>
+                    <span>📄 Générer fiche utilisateur (DOCX)</span>
+                </label>
+                <label class="action-checkbox">
+                    <input type="checkbox" id="send_email" name="send_email" checked>
+                    <span>📧 Envoyer email de bienvenue</span>
+                </label> -->
+                <label class="action-checkbox" id="row-aurion" style="display:none;">
+                    <input type="checkbox" id="ajouter_aurion" name="ajouter_aurion">
+                    <span>🎓 Ajouter au groupe Auriga (Aurion)</span>
+                </label>
+            </div>
+
+            <div class="sync-targets mt-3">
+                <strong>Synchronisation automatique vers :</strong>
+                <div class="sync-badges">
+                    <span class="badge badge-ad">🖥 Active Directory</span>
+                    <span class="badge badge-ldap">🔗 OpenLDAP</span>
+                    <span class="badge badge-aurion">🎓 Aurion</span>
+                    <span class="badge badge-db">🗄 MySQL</span>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success btn-lg">✅ Créer le Compte</button>
+            <a href="index.php" class="btn btn-secondary">Annuler</a>
+        </div>
+
+    </form>
+
+    {# ══════════════════════════════════════════════════════════
+       RÉSULTAT APRÈS CRÉATION
+    ══════════════════════════════════════════════════════════ #}
+    {% if user_data %}
+    <section class="user-created-info mt-4">
+        <h3>✅ Compte créé avec succès</h3>
+
+        <div class="result-grid">
+            <div class="info-box">
+                <h4>Informations du compte</h4>
+                <table class="info-table">
+                    <tr><th>Login</th>   <td><code>{{ user_data.login }}</code></td></tr>
+                    <tr><th>Email</th>   <td><code>{{ user_data.email }}</code></td></tr>
+                    <tr><th>Type</th>    <td><code>{{ user_data.type }}</code></td></tr>
+                    <tr><th>DN (AD)</th> <td><code>{{ user_data.dn }}</code></td></tr>
+                    <tr><th>ID base</th> <td><code>#{{ user_data.id }}</code></td></tr>
+                </table>
+                {% if user_data.docFile %}
+                <p class="mt-2"><a href="{{ user_data.docFile }}" class="btn btn-sm btn-outline" download>📄 Télécharger la fiche</a></p>
+                {% endif %}
+            </div>
+
+            {% if sync_status %}
+            <div class="sync-results">
+                <h4>Statut de synchronisation</h4>
+                {% for cible, status in sync_status %}
+                <div class="sync-item sync-{{ status.etat }}">
+                    <span class="sync-icon">
+                        {% if status.etat == 'synced' %}✅{% elseif status.etat == 'error' %}❌{% else %}⏳{% endif %}
+                    </span>
+                    <span class="sync-cible">{{ cible|upper }}</span>
+                    <span class="sync-etat">{{ status.etat }}</span>
+                    {% if status.last_error %}
+                    <span class="sync-error" title="{{ status.last_error }}">⚠ {{ status.last_error|slice(0,60) }}…</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <p class="mt-2"><small>Les erreurs de sync peuvent être relancées depuis la page admin.</small></p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="alert alert-warning mt-3">
+            <strong>⚠ Mot de passe temporaire :</strong> <code>{{ user_data.password }}</code><br>
+            À communiquer de manière sécurisée — le compte sera activé dès la première connexion.
+        </div>
+    </section>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const btnToggle    = document.getElementById('btnToggleAdvanced');
+    const advSection   = document.getElementById('advancedSection');
+    const hiddenMode   = document.getElementById('mode_avance_hidden');
+    const userTypeSelect = document.getElementById('userType');
+    const rowPromo     = document.getElementById('row-promo');
+
+    let isOpen = false;
+
+    btnToggle.addEventListener('click', function() {
+        isOpen = !isOpen;
+        advSection.style.display  = isOpen ? 'block' : 'none';
+        hiddenMode.name           = isOpen ? 'mode_avance' : '';
+        btnToggle.textContent = isOpen
+            ? '⬆️ Masquer les options avancées'
+            : '⚙️ Afficher les options avancées (organisation, adresse, réseau)';
+        btnToggle.classList.toggle('btn-active', isOpen);
+    });
+
+    // Afficher le champ Promo uniquement pour les stagiaires
+    userTypeSelect.addEventListener('change', function() {
+        rowPromo.style.display  = (this.value === 'stagiaires') ? 'flex' : 'none';
+        document.getElementById('row-aurion').style.display = (this.value === 'permanent') ? 'flex' : 'none';
+        if (this.value === 'permanent') {
+        const sam = generateSamAccountName();
+        document.getElementById('home_directory').value = `\\\\192.168.21.131\\partage\\${sam}`;
+        document.getElementById('home_drive').value = "P:";
+}
+    });
+})();
+
+function generateSamAccountName() {
+    const p = document.getElementById('prenom').value
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    const n = document.getElementById('nom').value
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[^a-z]/g, "");
+
+    return p.charAt(0) + "." + n;
+}
+</script>
+{% endblock %}

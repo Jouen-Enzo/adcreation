@@ -1,0 +1,48 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="page-index">
+    <section class="welcome-section">
+        <h2>Bienvenue dans l'outil de Synchronisation</h2>
+        <p>Outil de synchronisation AD/LDAP/Aurion</p>
+    </section>
+
+    <section class="features-grid">
+        {% for feature in features %}
+        <div class="feature-card">
+            <div class="feature-icon">{{ feature.icon }}</div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+            <a href="{{ feature.url }}" class="btn btn-primary">Accéder</a>
+        </div>
+        {% endfor %}
+    </section>
+
+    <section class="recent-logs">
+        <h2>Activité Récente</h2>
+        {% if logs %}
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Niveau</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr class="log-{{ log.level|lower }}">
+                    <td>{{ log.timestamp }}</td>
+                    <td><span class="badge badge-{{ log.level|lower }}">{{ log.level }}</span></td>
+                    <td>{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="logs.php" class="btn btn-secondary">Voir tous les logs</a>
+        {% else %}
+        <p>Aucune activité pour le moment</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

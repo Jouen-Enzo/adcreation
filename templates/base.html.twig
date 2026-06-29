@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }}{% endblock %} - ADCreation ESIGELEC</title>
+    <link rel="stylesheet" href="css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="titlebar">
+        <div class="titlebar-app">
+            <span>Outil de synchronisation AD/LDAP/Aurion</span>
+        </div>
+    </div>
+
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>ADCreation</h1>
+                <p class="subtitle">Gestion des Comptes AD</p>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.php"          {% if current_page == 'index' %}class="active"{% endif %}><span class="nav-icon">&#x1F3E0;</span>Accueil</a></li>
+                    <li><a href="creercompte.php"     {% if current_page == 'creercompte' %}class="active"{% endif %}><span class="nav-icon">&#x2795;</span>Créer</a></li>
+                    <!--<li><a href="creationenmasse.php" {% if current_page == 'creationenmasse' %}class="active"{% endif %}><span class="nav-icon">&#x1F4E6;</span>Masse</a></li>-->
+                    <li><a href="modifiercompte.php"  {% if current_page == 'modifiercompte' %}class="active"{% endif %}><span class="nav-icon">&#x270F;&#xFE0F;</span>Modifier</a></li>
+                    <li><a href="sync_admin.php"      {% if current_page == 'sync_admin' %}class="active"{% endif %}><span class="nav-icon">&#x1F504;</span>Sync / Import AD</a></li>
+                    <li><a href="sync_badges.php"     {% if current_page == 'sync_badges' %}class="active"{% endif %}><span class="nav-icon">&#x1F3AB;</span>Sync Badges</a></li>
+                    <li><a href="logs.php"            {% if current_page == 'logs' %}class="active"{% endif %}><span class="nav-icon">&#x1F4DC;</span>Logs</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-container">
+            {% if message %}
+                <div class="message message-{{ messageType }}">
+                    <span class="message-icon">
+                        {% if messageType == 'success' %}&#x2713;
+                        {% elseif messageType == 'error' %}&#x2715;
+                        {% elseif messageType == 'warning' %}&#x26A0;
+                        {% else %}&#x2139;{% endif %}
+                    </span>
+                    <span class="message-text">{{ message }}</span>
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; ESIGELEC 1901-{{ "now"|date("Y") }}</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

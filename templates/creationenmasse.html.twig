@@ -1,0 +1,133 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="page-creationenmasse">
+    <h2>Création en Masse de Comptes</h2>
+
+    <form method="POST" class="form-batch">
+        <fieldset>
+            <legend>Source de Données</legend>
+            
+            <div class="form-group">
+                <label for="favorite_id">Favorite ID Aurion</label>
+                <input type="text" id="favorite_id" name="favorite_id" value="1813866" placeholder="1813866">
+                <small>Identifiant du favori Aurion pour les nouveaux apprenants</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" name="action" value="preview" class="btn btn-info">Aperçu</button>
+            </div>
+        </fieldset>
+    </form>
+
+    {% if preview_students %}
+    <section class="preview-section">
+        <h3>Aperçu ({{ preview_students|length }} apprenant(s))</h3>
+
+        <div class="table-responsive">
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all" onchange="toggleAll(this)"></th>
+                        <th>Prénom</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Promotion</th>
+                        <th>Groupe</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in preview_students %}
+                    <tr>
+                        <td><input type="checkbox" class="student-select" value='{{ student|json_encode }}' checked></td>
+                        <td>{{ student.prenom }}</td>
+                        <td>{{ student.nom }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.promo }}</td>
+                        <td>{{ student.groupe }}</td>
+                        <td>{{ student.type }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <form method="POST" class="form-batch-create">
+            <input type="hidden" id="students_json" name="students_json" value="">
+
+            <fieldset>
+                <legend>Options de Création</legend>
+                
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="generate_docx_batch" name="generate_docx" checked>
+                    <label for="generate_docx_batch">Générer les fiches utilisateurs (DOCX)</label>
+                </div>
+
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="send_email_batch" name="send_email" checked>
+                    <label for="send_email_batch">Envoyer les emails de bienvenue</label>
+                </div>
+            </fieldset>
+
+            <div class="form-actions">
+                <button type="submit" name="action" value="create_batch" class="btn btn-success">Créer les Comptes</button>
+                <a href="creationenmasse.php" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </section>
+    {% endif %}
+
+    {% if results %}
+    <section class="results-section">
+        <h3>Résultats de la Création</h3>
+        
+        <div class="results-summary">
+            <div class="result-stat success">
+                <span class="stat-number">{{ results.success }}</span>
+                <span class="stat-label">Créé(s)</span>
+            </div>
+            <div class="result-stat error">
+                <span class="stat-number">{{ results.failed }}</span>
+                <span class="stat-label">Erreur(s)</span>
+            </div>
+        </div>
+
+        {% if results.created %}
+        <div class="results-list">
+            <h4>Comptes Créés</h4>
+            <ul>
+                {% for user in results.created %}
+                <li><code>{{ user.login }}</code> - {{ user.prenom }} {{ user.nom }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if results.errors %}
+        <div class="results-errors">
+            <h4>Erreurs</h4>
+            <ul>
+                {% for error in results.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+</div>
+
+<script>
+function toggleAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.student-select');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+document.querySelector('.form-batch-create')?.addEventListener('submit', function(e) {
+    const selected = document.querySelectorAll('.student-select:checked');
+    const students = Array.from(selected).map(cb => JSON.parse(cb.value));
+    document.getElementById('students_json').value = JSON.stringify(students);
+});
+</script>
+{% endblock %}

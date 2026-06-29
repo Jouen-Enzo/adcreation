@@ -1,0 +1,86 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="page-sync-badges">
+    <h2>🎫 Synchronisation Badges — Aurion → OpenLDAP</h2>
+
+    <section>
+        <h3>À propos</h3>
+        <p style="color:var(--text-secondary);margin-bottom:12px;">
+            Cette synchronisation lit les données d'Aurion (élèves + personnel) et met à jour
+            les attributs de contrôle d'accès badges dans l'OpenLDAP.
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:8px;">
+            <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
+                <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Attributs synchronisés</div>
+                <ul style="list-style:none;font-size:12px;color:var(--text);line-height:2;">
+                    <li><code>uidNumber</code> ← <code>codebasemetier_2</code></li>
+                    <li><code>supannEtuId</code> ← <code>codebasemetier_2</code> <span style="color:var(--text-tertiary)">(étudiants)</span></li>
+                    <li><code>supannEmpId</code> ← <code>codebasemetier_2</code> <span style="color:var(--text-tertiary)">(personnel)</span></li>
+                    <li><code>supannCodeINE</code> ← <code>ine</code> <span style="color:var(--text-tertiary)">(étudiants)</span></li>
+                    <li><code>employeeNumber</code> ← <code>employeeNumber</code></li>
+                    <li><code>schacExpiryDate</code> ← <code>datefindroits</code> <span style="color:var(--text-tertiary)">(étudiants)</span></li>
+                    <li><code>supannEntiteAffectationPrincipale</code> ← <code>etapelibelle</code> <span style="color:var(--text-tertiary)">(étudiants)</span></li>
+                </ul>
+            </div>
+            <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
+                <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Configuration active</div>
+                <div style="font-size:12px;line-height:2;">
+                    <div><strong>LDAP base DN :</strong> <code>{{ ldap_base_dn }}</code></div>
+                    <div><strong>Source élèves :</strong> <code style="word-break:break-all;">favori id=17782803</code></div>
+                    <div><strong>Source personnel :</strong> <code style="word-break:break-all;">favori id=17785538</code></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <form method="POST">
+            <input type="hidden" name="action" value="sync">
+            <button type="submit" class="btn btn-primary btn-lg"
+                    onclick="this.disabled=true;this.textContent='⏳ Synchronisation en cours…';this.form.submit();">
+                ▶ Lancer la synchronisation
+            </button>
+            <small style="display:block;margin-top:8px;color:var(--text-secondary);">
+                La synchronisation peut prendre quelques secondes selon la taille de la population.
+            </small>
+        </form>
+    </section>
+
+    {% if result is not null %}
+    {# ── Résumé ──────────────────────────────────────────────────── #}
+    <section>
+        <h3>Résultats</h3>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+            <div class="stat-box">
+                <span class="stat-number" style="color:var(--success-color);">{{ result.updated }}</span>
+                <span class="stat-label">Mis à jour</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" style="color:var(--text-secondary);">{{ result.skipped }}</span>
+                <span class="stat-label">Inchangés</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" style="color:{% if result.errors > 0 %}var(--error-color){% else %}var(--text-secondary){% endif %};">{{ result.errors }}</span>
+                <span class="stat-label">Erreurs</span>
+            </div>
+        </div>
+
+        {# ── Journal détaillé ────────────────────────────────────── #}
+        <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);padding:16px;max-height:420px;overflow-y:auto;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;">Journal d'exécution</div>
+            {% for entry in result.log %}
+            <div style="
+                font-size:12px;
+                font-family:'Cascadia Code','Consolas',monospace;
+                padding:3px 0;
+                border-bottom:1px solid var(--border);
+                color:{% if entry.level == 'error' %}var(--error-color){% else %}var(--text){% endif %};">
+                {% if entry.level == 'error' %}⚠ {% else %}  {% endif %}{{ entry.msg }}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

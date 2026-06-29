@@ -1,0 +1,214 @@
+/* ============================================================
+   ADCreation v3 — Styles page Créer un compte
+   ============================================================ */
+
+.page-creercompte {
+    max-width: 900px;
+}
+
+/* ── Layout grille ── */
+.form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+.form-group.col-2  { flex: 0 0 calc(16.66% - 8px); min-width: 80px; }
+.form-group.col-3  { flex: 0 0 calc(25% - 12px);   min-width: 120px; }
+.form-group.col-4  { flex: 0 0 calc(33.33% - 11px);min-width: 140px; }
+.form-group.col-6  { flex: 0 0 calc(50% - 8px);    min-width: 180px; }
+.form-group.col-8  { flex: 0 0 calc(66.66% - 5px); min-width: 200px; }
+.form-group.col-9  { flex: 0 0 calc(75% - 4px);    min-width: 220px; }
+@media (max-width: 640px) {
+    .form-group[class*="col-"] { flex: 0 0 100%; }
+}
+
+/* ── Champs ── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+    flex: 1;
+}
+.form-group label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #444;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 8px 10px;
+    border: 1px solid #cdd0d6;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: border-color .2s, box-shadow .2s;
+    background: #fff;
+    width: 100%;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0,102,204,.12);
+}
+.form-text {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* ── Fieldsets ── */
+fieldset {
+    border: 1px solid #dde2ea;
+    border-radius: var(--border-radius);
+    padding: 18px 20px 10px;
+    margin-bottom: 20px;
+    background: #fff;
+}
+legend {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary-color);
+    padding: 0 8px;
+    letter-spacing: .3px;
+}
+.fieldset-advanced {
+    background: #f7f9fc;
+    border-color: #b8cadf;
+}
+
+/* ── Toggle avancé ── */
+.advanced-toggle {
+    margin-bottom: 12px;
+    text-align: center;
+}
+.btn-outline {
+    background: transparent;
+    border: 2px dashed var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 9px 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .2s;
+}
+.btn-outline:hover,
+.btn-outline.btn-active {
+    background: var(--secondary-color);
+    color: #fff;
+    border-style: solid;
+}
+#advancedSection {
+    border-left: 3px solid var(--secondary-color);
+    padding-left: 6px;
+    margin-bottom: 12px;
+}
+
+/* ── Groupes AD ── */
+.groupes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.groupe-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f0f4fa;
+    border: 1px solid #c8d8ee;
+    border-radius: var(--border-radius);
+    padding: 8px 12px;
+    cursor: pointer;
+    min-width: 160px;
+    transition: background .15s;
+}
+.groupe-checkbox:hover { background: #dde8f7; }
+.groupe-checkbox input { margin-top: 2px; }
+.groupe-label strong { display: block; font-size: 13px; }
+.groupe-label em { display: block; font-size: 11px; color: #666; font-style: normal; }
+
+/* ── Actions ── */
+.actions-grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.action-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.action-checkbox input { width: 16px; height: 16px; }
+
+/* ── Badges sync ── */
+.sync-targets { margin-top: 14px; }
+.sync-badges  { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-ad     { background: #e8f0fe; color: #1a56c4; border: 1px solid #bcd0f7; }
+.badge-ldap   { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+.badge-aurion { background: #f3e8ff; color: #6d28d9; border: 1px solid #c4b5fd; }
+.badge-db     { background: #e6fff3; color: #1a7a4a; border: 1px solid #6ee7b7; }
+
+/* ── Boutons : voir style.css pour les styles communs (.btn, .btn-*) ── */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+/* ── Résultats ── */
+.result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 640px) { .result-grid { grid-template-columns: 1fr; } }
+
+.user-created-info {
+    background: #eafaf1;
+    border: 2px solid var(--success-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+}
+.user-created-info h3 { color: #155724; margin-bottom: 16px; }
+.user-created-info h4 { font-size: 13px; color: #444; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+
+.info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.info-table th { text-align: left; color: #666; padding: 5px 8px 5px 0; width: 90px; font-weight: 600; }
+.info-table td { padding: 5px 0; }
+.info-table code { background: #f0f4fa; padding: 2px 7px; border-radius: 3px; font-size: 12px; word-break: break-all; }
+
+/* ── Sync results ── */
+.sync-results { background: #fff; border: 1px solid #ddd; border-radius: var(--border-radius); padding: 14px; }
+.sync-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+.sync-synced { background: #d4edda; }
+.sync-error  { background: #f8d7da; }
+.sync-pending{ background: #fff3cd; }
+.sync-icon   { font-size: 16px; }
+.sync-cible  { font-weight: 700; min-width: 80px; }
+.sync-etat   { color: #666; font-size: 12px; }
+.sync-error-msg { font-size: 11px; color: #721c24; margin-left: auto; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 14px; }
+.mt-4 { margin-top: 20px; }

@@ -1,0 +1,64 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="page-logs">
+    <h2>Logs d'Activité</h2>
+
+    <div class="logs-stats">
+        <div class="stat-box">
+            <span class="stat-number">{{ log_count }}</span>
+            <span class="stat-label">Total des logs</span>
+        </div>
+        <div class="stat-box error">
+            <span class="stat-number">{{ error_count }}</span>
+            <span class="stat-label">Erreurs/Avertissements</span>
+        </div>
+    </div>
+
+    {% if error_logs %}
+    <section class="error-logs">
+        <h3>Erreurs et Avertissements</h3>
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Niveau</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in error_logs %}
+                <tr class="log-{{ log.level|lower }}">
+                    <td>{{ log.timestamp }}</td>
+                    <td><span class="badge badge-{{ log.level|lower }}">{{ log.level }}</span></td>
+                    <td>{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    <section class="all-logs">
+        <h3>Tous les Logs ({{ logs|length }})</h3>
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Niveau</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr class="log-{{ log.level|lower }}">
+                    <td>{{ log.timestamp }}</td>
+                    <td><span class="badge badge-{{ log.level|lower }}">{{ log.level }}</span></td>
+                    <td>{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}
