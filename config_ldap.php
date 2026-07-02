@@ -19,6 +19,15 @@ define('OPENLDAP_BASE_DN',  'dc=testopenldap,dc=local');
 define('OPENLDAP_ADMIN_DN', 'cn=admin,dc=testopenldap,dc=local');
 define('OPENLDAP_PASSWORD', 'Chell.2502');   // ← À remplir
 
+// ── Partage RENATER (boîtes mail ZRR) ────────────────────────────
+// Documentation API : https://documentation.partage.renater.fr/
+// La clé preauth est fournie par RENATER pour votre domaine.
+// Récupérable via GetDomain → zimbraPreAuthKey une fois connecté.
+define('PARTAGE_API_URL',     'https://api.partage.renater.fr/service/domain');
+define('PARTAGE_DOMAIN',      '');       // ← ex: "zrr.esigelec.fr"
+define('PARTAGE_PREAUTH_KEY', '');       // ← clé fournie par RENATER
+// define('PARTAGE_COS_ID_ZRR', '');     // ← ID de la classe de service ZRR (optionnel)
+
 // ── Aurion ────────────────────────────────────────────────────────
 if (!defined('AURION_SERVER')) {
     define('AURION_SERVER', '');   // ex: http://srvaurion2:5680 — vide = sync ignorée

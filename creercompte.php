@@ -15,6 +15,7 @@ require_once 'EnvoiMail.php';
 require_once 'GenereDOCX.php';
 require_once 'HomeDirectoryManager.php';
 require_once 'data_referentiels.php';
+require_once 'PartageZRR.php';
 require_once 'vendor/autoload.php';
 
 $loader = new \Twig\Loader\FilesystemLoader('templates');
@@ -158,6 +159,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } catch (Exception $e) {
                 Logging::log('Groupe Auriga : ' . $e->getMessage(), 'WARNING');
+            }
+        }
+
+        // ── Étape 4c : Boîte mail ZRR (Partage RENATER) ──────────────────
+        // La case "Créer une boîte mail ZRR" est disponible pour tous les types
+        // de comptes (les chercheurs peuvent être permanents ou vacataires).
+        if (isset($_POST['creer_boite_zrr'])) {
+            try {
+                // ⚠ À COMPLÉTER : définir la convention de nommage de l'adresse ZRR
+                // Exemple : p.dupont@zrr.esigelec.fr (même login que l'AD)
+                $emailZrr = $login . '@' . PARTAGE_DOMAIN;
+
+                $zrr       = new PartageZRR();
+                $zrrResult = $zrr->creerBoiteMailZRR($prenom, $nom, $emailZrr, $password);
+
+                if ($zrrResult['success']) {
+                    Logging::log("[ZRR] Boîte créée pour $login : $emailZrr");
+                } else {
+                    // Non bloquant : on log l'erreur mais la création du compte AD continue
+                    Logging::log("[ZRR] Échec création boîte $emailZrr : " . $zrrResult['message'], 'WARNING');
+                }
+
+            } catch (Exception $e) {
+                // Non bloquant : l'erreur ZRR n'empêche pas la création du compte AD
+                Logging::log('[ZRR] Exception : ' . $e->getMessage(), 'ERROR');
             }
         }
 
